@@ -1,0 +1,25 @@
+# Free staging only. No disk/database and no automatic release of later commits.
+services:
+  - type: web
+    name: kyn-callback-preview
+    runtime: node
+    plan: free
+    buildCommand: npm ci --omit=dev
+    startCommand: node --max-old-space-size=128 server/main.mjs
+    healthCheckPath: /health
+    autoDeployTrigger: off
+    envVars:
+      - key: NODE_VERSION
+        value: 24
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_PATH
+        value: /tmp/kyn/sessions.sqlite
+      - key: ALLOWED_ORIGINS
+        value: https://sriharshakaramchati.com
+      - key: RECLAIM_APP_ID
+        sync: false
+      - key: RECLAIM_APP_SECRET
+        sync: false
+      - key: OWNER_HMAC_SECRET
+        generateValue: true
