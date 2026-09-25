@@ -81,12 +81,14 @@ export function tavilySearch({ apiKey, request = fetch }) {
     const usage = await call("usage");
     const a = usage.account,
       k = usage.key;
-    // Refuse paid plans or any enabled pay-as-you-go allowance. No silent upgrades.
+    // Free accounts report an unset paygo limit as null. Also require a
+    // provider-enforced key cap: no unlimited key can run this queue.
     requireCondition(
       a &&
         /^(researcher|free)$/i.test(a.current_plan) &&
-        a.paygo_limit === 0 &&
-        a.paygo_usage === 0,
+        (a.paygo_limit === 0 || a.paygo_limit === null) &&
+        a.paygo_usage === 0 &&
+        Number.isFinite(k?.limit) && k.limit > 0 && k.limit <= 1000,
       503,
       "FREE_PLAN_REQUIRED",
     );
@@ -94,7 +96,7 @@ export function tavilySearch({ apiKey, request = fetch }) {
       Number.isFinite(a.plan_usage) &&
         Number.isFinite(a.plan_limit) &&
         a.plan_usage < Math.min(a.plan_limit, 1000) &&
-        (!k?.limit || (Number.isFinite(k.usage) && k.usage < k.limit)),
+        Number.isFinite(k.usage) && k.usage < k.limit,
       429,
       "RESEARCH_LIMIT",
     );
