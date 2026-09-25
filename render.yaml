@@ -5,7 +5,7 @@ services:
     runtime: node
     plan: free
     buildCommand: npm ci --omit=dev
-    startCommand: node --max-old-space-size=128 server/main.mjs
+    startCommand: node --max-old-space-size=160 server/main.mjs
     healthCheckPath: /health
     autoDeployTrigger: off
     envVars:
