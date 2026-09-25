@@ -219,7 +219,6 @@ export function createApp({
           422,
           "INVALID_PROOF",
         );
-        const owners = new Set();
         const hashes = [];
         for (let i = 0; i < proofs.length; i++) {
           const c = trusted[i].context,
@@ -240,7 +239,6 @@ export function createApp({
             422,
             "STALE_PROOF",
           );
-          owners.add(claim.owner.toLowerCase());
           requireCondition(
             typeof claim.identifier === "string" && claim.identifier.length > 0,
             422,
@@ -249,7 +247,7 @@ export function createApp({
           hashes.push(digest(claim.identifier));
         }
         requireCondition(
-          owners.size === 1 && new Set(hashes).size === hashes.length,
+          new Set(hashes).size === hashes.length,
           422,
           "MIXED_OR_REPLAYED_PROOFS",
         );

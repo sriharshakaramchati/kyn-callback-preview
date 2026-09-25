@@ -98,6 +98,7 @@ export function parseResidents(proofs, trusted) {
         "flat_name",
         "flatnumber",
         "flatNumber",
+        "fname",
         "unit",
         "unit_name",
         "unitName",
@@ -106,6 +107,7 @@ export function parseResidents(proofs, trusted) {
         "buildingname",
         "buildingName",
         "building_name",
+        "bname",
         "blockname",
         "blockName",
         "block",
@@ -127,6 +129,7 @@ export function parseResidents(proofs, trusted) {
           "residentName",
           "fullName",
           "full_name",
+          "rname",
         ]);
         requireCondition(name, 422, "RESIDENT_SCHEMA_UNSUPPORTED");
         const personUnit =
@@ -134,7 +137,7 @@ export function parseResidents(proofs, trusted) {
         const personBlock =
           text(person, ["buildingname", "buildingName", "block"]) || block;
         const identity =
-          text(person, ["userid", "userId", "residentid", "residentId"], 256) ||
+          text(person, ["userid", "userId", "residentid", "residentId", "rid", "r_user_id"], 256) ||
           name;
         const id = createHash("sha256")
           .update(
