@@ -18,6 +18,7 @@
   "dependencies": {
     "@reclaimprotocol/js-sdk": "5.8.2",
     "express": "5.2.1",
+    "jose": "6.2.12",
     "papaparse": "^5.7.0"
   },
   "devDependencies": {

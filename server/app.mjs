@@ -28,6 +28,7 @@ export function createApp({
   publicOrigin,
   allowedOrigins,
   now = Date.now,
+  authenticateGoogle,
 }) {
   const app = express();
   app.disable("x-powered-by");
@@ -70,6 +71,12 @@ export function createApp({
     if (bucket.count > 12) return res.status(429).json({ error: "TRY_LATER" });
     next();
   };
+  app.post('/v1/auth/google', rateLimit, express.json({limit:'16kb',strict:true,inflate:false}), async (req,res) => {
+    requireCondition(allowedOrigins.includes(req.headers.origin),403,'ORIGIN_NOT_ALLOWED');
+    requireCondition(authenticateGoogle,503,'GOOGLE_NOT_CONFIGURED');
+    requireCondition(req.body && Object.keys(req.body).every(k=>['credential','nonce'].includes(k)),400,'INVALID_REQUEST');
+    res.json(await authenticateGoogle(req.body));
+  });
   app.post(
     "/v1/sessions",
     rateLimit,

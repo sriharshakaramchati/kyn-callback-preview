@@ -1,5 +1,6 @@
 import { SessionStore } from "./store.mjs";
 import { createApp } from "./app.mjs";
+import { googleAuthenticator, GOOGLE_CLIENT_ID } from "./google-auth.mjs";
 import { reclaim } from "./reclaim.mjs";
 const {
   PUBLIC_ORIGIN: configuredOrigin,
@@ -26,6 +27,7 @@ const store = new SessionStore(
 const app = createApp({
   store,
   reclaim,
+  authenticateGoogle: googleAuthenticator({ownerSecret: OWNER_HMAC_SECRET, clientId: process.env.GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID}),
   appId: RECLAIM_APP_ID,
   appSecret: RECLAIM_APP_SECRET,
   ownerSecret: OWNER_HMAC_SECRET,
