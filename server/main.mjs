@@ -27,6 +27,7 @@ const store = new SessionStore(
 const app = createApp({
   store,
   reclaim,
+  recordCallback: event => console.info(JSON.stringify(event)),
   authenticateGoogle: googleAuthenticator({ownerSecret: OWNER_HMAC_SECRET, clientId: process.env.GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID}),
   appId: RECLAIM_APP_ID,
   appSecret: RECLAIM_APP_SECRET,

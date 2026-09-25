@@ -1,4 +1,5 @@
 import express from "express";
+import {callbackDiagnostics} from "./callback-diagnostics.mjs";
 import { randomUUID } from "node:crypto";
 import {
   BODY_LIMIT,
@@ -29,6 +30,7 @@ export function createApp({
   allowedOrigins,
   now = Date.now,
   authenticateGoogle,
+  recordCallback = () => {},
 }) {
   const app = express();
   app.disable("x-powered-by");
@@ -181,6 +183,7 @@ export function createApp({
   };
   app.post(
     "/v1/callback/:id",
+    callbackDiagnostics(recordCallback),
     callbackAdmission,
     express.json({ limit: BODY_LIMIT, strict: true, inflate: false }),
     async (req, res) => {
