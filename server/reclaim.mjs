@@ -1,5 +1,6 @@
 import { Worker } from "node:worker_threads";
 import { SafeError, MAX_ACTIVE_VERIFICATIONS } from "./constants.mjs";
+import { workerFailure } from './verification-errors.mjs';
 const activeWorkers = new Set();
 function isolatedCall(data) {
   if (activeWorkers.size >= MAX_ACTIVE_VERIFICATIONS)
@@ -25,7 +26,7 @@ function isolatedCall(data) {
     worker.once("message", (m) => {
       clearTimeout(timer);
       void worker.terminate();
-      m.ok ? resolve(m.value) : reject(new SafeError(422, "INVALID_PROOF"));
+      m.ok ? resolve(m.value) : reject(workerFailure(m));
     });
     worker.once("error", () => {
       clearTimeout(timer);

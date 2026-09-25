@@ -4,6 +4,7 @@ import {
   verifyProof,
 } from "@reclaimprotocol/js-sdk";
 import { PROVIDER_ID, requireCondition } from "./constants.mjs";
+import { verificationFailure } from './verification-errors.mjs';
 // SDK 5.8.2 hashes urlType=REGEX URLs literally. Resolve only URLs matching the
 // trusted provider's regex, then let the SDK verify signatures AND all content hashes.
 // No proof-supplied hash, publicData, hasNoPii bypass, or disabled validation is used.
@@ -66,6 +67,6 @@ export async function verifyMyGate(proofs, providerVersion) {
     ...requirements,
     hasNoPii: false,
   });
-  requireCondition(verified.isVerified === true, 422, "INVALID_PROOF");
+  if (verified.isVerified !== true) throw verificationFailure(verified.error);
   return verified.data;
 }
