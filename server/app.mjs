@@ -1,3 +1,4 @@
+import {researchService} from './research.mjs';
 import express from "express";
 import {callbackDiagnostics} from "./callback-diagnostics.mjs";
 import { randomUUID } from "node:crypto";
@@ -30,6 +31,7 @@ export function createApp({
   allowedOrigins,
   now = Date.now,
   authenticateGoogle,
+  searchPublicWeb,
   recordCallback = () => {},
 }) {
   const app = express();
@@ -73,6 +75,19 @@ export function createApp({
     if (bucket.count > 12) return res.status(429).json({ error: "TRY_LATER" });
     next();
   };
+  const research=researchService({search:searchPublicWeb,now});
+  app.get('/v1/research/status',(_req,res)=>res.json({available:research.available,provider:'Tavily',monthlySearchLimit:1000}));
+  const researchOrigin=(req,_res,next)=>{requireCondition(allowedOrigins.includes(req.headers.origin),403,'ORIGIN_NOT_ALLOWED');next();};
+  app.post('/v1/research/sessions',researchOrigin,rateLimit,express.json({limit:'8kb',strict:true,inflate:false}),async(req,res)=>{
+    requireCondition(req.body&&Object.keys(req.body).length===1,400,'INVALID_RESEARCH_INPUT');
+    res.status(201).json(await research.create(req.body.publicKey));
+  });
+  app.post('/v1/research/sessions/:id',researchOrigin,express.json({limit:'3kb',strict:true,inflate:false}),async(req,res)=>{
+    res.json(await research.run(req.params.id,req.headers.authorization?.replace(/^Bearer /,''),req.body));
+  });
+  app.delete('/v1/research/sessions/:id',researchOrigin,(req,res)=>{
+    research.remove(req.params.id,req.headers.authorization?.replace(/^Bearer /,''));res.sendStatus(204);
+  });
   app.post('/v1/auth/google', rateLimit, express.json({limit:'16kb',strict:true,inflate:false}), async (req,res) => {
     requireCondition(allowedOrigins.includes(req.headers.origin),403,'ORIGIN_NOT_ALLOWED');
     requireCondition(authenticateGoogle,503,'GOOGLE_NOT_CONFIGURED');

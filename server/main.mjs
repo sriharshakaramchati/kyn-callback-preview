@@ -1,3 +1,4 @@
+import {tavilySearch} from './research.mjs';
 import { SessionStore } from "./store.mjs";
 import { createApp } from "./app.mjs";
 import { googleAuthenticator, GOOGLE_CLIENT_ID } from "./google-auth.mjs";
@@ -27,6 +28,7 @@ const store = new SessionStore(
 const app = createApp({
   store,
   reclaim,
+  searchPublicWeb: tavilySearch({apiKey: process.env.TAVILY_API_KEY}),
   recordCallback: event => console.info(JSON.stringify(event)),
   authenticateGoogle: googleAuthenticator({ownerSecret: OWNER_HMAC_SECRET, clientId: process.env.GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID}),
   appId: RECLAIM_APP_ID,
